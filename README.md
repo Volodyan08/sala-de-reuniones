@@ -2,6 +2,9 @@
 
 This project is a RESTful API for managing meeting rooms in a coworking space. The API enables clients to view available meeting rooms, make and list bookings, and obtain various reports on usage and reservations.
 
+### **HOT** 
+Meeting Room API already available at https://meeting-room.vintila.dev//api/. You can make requests to the API using the interface described in the meeting_room_api.yaml file or use test_api.py to make requests to the API.
+
 ## Table of Contents
 
 - [Overview](#overview)
@@ -126,4 +129,4 @@ An example JSON file with initial data is provided. Use the `/load-data` endpoin
     ```
 - The API will be available at `http://localhost:8000`.
 - Fill the database with initial data using the `/load-data` endpoint. Can use corresponding function from test_api.py.
-- interface described in the mee
+- interface described in the meeting_room_api.yaml file.

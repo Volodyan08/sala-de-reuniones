@@ -1,0 +1,331 @@
+openapi: 3.0.3
+info:
+  version: 1.0.0
+  title: MeetingRoom API
+  description: MeetingRoom API
+
+tags:
+  - name: rooms
+    description: Meeting rooms
+  - name: bookings
+    description: Bookings
+  - name: clients
+    description: Clients
+
+servers:
+  - url: https://vintila.meetingroom.com
+
+components:
+  schemas:
+    Room:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        open_time:
+          type: string
+          format: time
+        close_time:
+          type: string
+          format: time
+        capacity:
+          type: integer
+      required:
+        - id
+        - name
+        - open_time
+        - close_time
+        - capacity
+    RoomInput:
+      type: object
+      properties:
+        name:
+          type: string
+        open_time:
+          type: string
+          format: time
+        close_time:
+          type: string
+          format: time
+        capacity:
+          type: integer
+      required:
+        - name
+        - open_time
+        - close_time
+        - capacity
+    Client:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+      required:
+        - id
+        - name
+    ClientInput:
+      type: object
+      properties:
+        name:
+          type: string
+      required:
+        - name
+    Booking:
+      type: object
+      properties:
+        id:
+          type: integer
+        room:
+          type: integer
+        client:
+          type: integer
+        start_time:
+          type: string
+          format: date-time
+        end_time:
+          type: string
+          format: date-time
+      required:
+        - id
+        - room
+        - client
+        - start_time
+        - end_time
+    BookingInput:
+      type: object
+      properties:
+        room:
+          type: integer
+        client:
+          type: integer
+        start_time:
+          type: string
+          format: date-time
+        end_time:
+          type: string
+          format: date-time
+      required:
+        - room
+        - client
+        - start_time
+        - end_time
+
+paths:
+  /rooms/:
+    get:
+      summary: List all rooms
+      responses:
+        '200':
+          description: A list of rooms.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Room'
+    post:
+      summary: Create a new room
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoomInput'
+      responses:
+        '201':
+          description: Room created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Room'
+  /rooms/usage/:
+    get:
+      summary: Get usage percentage of rooms
+      responses:
+        '200':
+          description: A list of usage percentages for each room.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    room_id:
+                      type: integer
+                    room_name:
+                      type: string
+                    usage_percentage:
+                      type: number
+  /rooms/{room_id}/bookings/:
+    get:
+      summary: Get bookings for a specific room
+      parameters:
+        - in: path
+          name: room_id
+          required: true
+          schema:
+            type: integer
+          description: The ID of the room.
+      responses:
+        '200':
+          description: A list of bookings for the room.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Booking'
+  /rooms/{room_id}/availability/:
+    get:
+      summary: Check room availability at a given time
+      parameters:
+        - in: path
+          name: room_id
+          required: true
+          schema:
+            type: integer
+          description: The ID of the room.
+        - in: query
+          name: time
+          required: true
+          schema:
+            type: string
+            format: date-time
+          description: The time to check availability.
+      responses:
+        '200':
+          description: Room availability status.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  room_id:
+                    type: integer
+                  room_name:
+                    type: string
+                  available:
+                    type: boolean
+        '400':
+          description: Invalid query parameter.
+  /bookings/:
+    get:
+      summary: List all bookings (optionally filtered by client)
+      parameters:
+        - in: query
+          name: client_id
+          required: false
+          schema:
+            type: integer
+          description: Filter bookings by client ID.
+      responses:
+        '200':
+          description: A list of bookings.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Booking'
+    post:
+      summary: Create a new booking
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookingInput'
+      responses:
+        '201':
+          description: Booking created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+  /bookings/overlaps/:
+    get:
+      summary: List overlapping bookings in the same room.
+      responses:
+        '200':
+          description: A list of overlapping bookings.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    room_id:
+                      type: integer
+                    room_name:
+                      type: string
+                    booking1:
+                      $ref: '#/components/schemas/Booking'
+                    booking2:
+                      $ref: '#/components/schemas/Booking'
+  /clients/bookings/:
+    get:
+      summary: Get the number of bookings per client.
+      responses:
+        '200':
+          description: A list of clients with their booking counts.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
+                    booking_count:
+                      type: integer
+  /load-data/:
+    post:
+      summary: Load initial data for rooms, clients, and bookings.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                rooms:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/RoomInput'
+                clients:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/ClientInput'
+                bookings:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      room_id:
+                        type: integer
+                      client_id:
+                        type: integer
+                      start_time:
+                        type: string
+                        format: date-time
+                      end_time:
+                        type: string
+                        format: date-time
+      responses:
+        '201':
+          description: Data loaded successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string

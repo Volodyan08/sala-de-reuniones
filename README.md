@@ -106,7 +106,6 @@ An example JSON file with initial data is provided. Use the `/load-data` endpoin
 2. Install the required dependencies using `pip install -r requirements.txt`.
 3. Create a .env file with the following environment variables:
    - `SECRET_KEY`: Django secret key.
-   - `DEBUG`: Set to `True` for development.
    - Database settings:
      - `POSTGRES_DB`
      - `POSTGRES_USER`
@@ -114,9 +113,17 @@ An example JSON file with initial data is provided. Use the `/load-data` endpoin
      - `POSTGRES_HOST`
      - `POSTGRES_PORT`
 4. Run the docker-compose file using `docker-compose up`.
-5. Run the migrations using docker-compose exec web python manage.py migrate.
+5. Run the migrations using `docker-compose exec web python manage.py migrate`.
 
 
 ## Running the Service
 
 - To start the development server, run:
+    ```
+    docker-compose up
+    docker-compose exec web python manage.py makemigrations
+    docker-compose exec web python manage.py migrate
+    ```
+- The API will be available at `http://localhost:8000`.
+- Fill the database with initial data using the `/load-data` endpoint. Can use corresponding function from test_api.py.
+- interface described in the mee
